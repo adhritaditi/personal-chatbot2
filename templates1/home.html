@@ -42,20 +42,45 @@
   var lastUserMessageDiv = null; // Keep track of the last user message div
   var isNewUserInput = true; // Flag to track when a new user input happens
 
+  // To keep track of the current chat session
+  var currentSessionKey = 'currentChatSession';
+  var sessionListKey = 'chatSessionList';
+  
   // Load chat history from localStorage on page load
   window.onload = function() {
     loadChatHistory();
   };
 
   function loadChatHistory() {
-    var storedHistory = localStorage.getItem('chatHistory');
-    if (storedHistory) {
-      chatHistory.innerHTML = storedHistory;
+    var currentSession = localStorage.getItem(currentSessionKey);
+    if (currentSession) {
+      chatHistory.innerHTML = localStorage.getItem(currentSession);
     }
   }
 
   function saveChatHistory() {
-    localStorage.setItem('chatHistory', chatHistory.innerHTML);
+    var currentSession = localStorage.getItem(currentSessionKey);
+    localStorage.setItem(currentSession, chatHistory.innerHTML);
+  }
+
+  function createNewChatSession() {
+    var sessionList = JSON.parse(localStorage.getItem(sessionListKey)) || [];
+    var newSessionKey = `chatSession_${Date.now()}`;
+    
+    // Save current chat history if there is any
+    if (localStorage.getItem(currentSessionKey)) {
+      saveChatHistory();
+    }
+    
+    // Add new session key to the list
+    sessionList.push(newSessionKey);
+    localStorage.setItem(sessionListKey, JSON.stringify(sessionList));
+    
+    // Set the new session as the current session
+    localStorage.setItem(currentSessionKey, newSessionKey);
+    
+    // Clear chat area for new chat session
+    chatHistory.innerHTML = "";
   }
 
   ws.onmessage = function(event) {
@@ -105,11 +130,6 @@
   };
 
   newChatButton.onclick = function() {
-    // Save the current chat history
-    saveChatHistory();
-    
-    // Clear the chat area and start a new chat
-    chatHistory.innerHTML = "";
-    saveChatHistory(); // Save the empty chat history to start fresh
+    createNewChatSession(); // Start a new chat session while saving the old one
   };
 </script>
