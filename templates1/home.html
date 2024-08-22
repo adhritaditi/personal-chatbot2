@@ -9,6 +9,9 @@
     <div class="card text-center mt-3">
       <div class="card-header">
         Chat History:
+        <select id="chatSessionSelector" class="form-select">
+          <option value="" disabled selected>Select a chat session</option>
+        </select>
       </div>
       <div class="card-body chat-history" id="chatHistory">
         <!-- Chat history will be loaded here -->
@@ -37,24 +40,37 @@
 
   var sendButton = document.getElementById("sendButton");
   var newChatButton = document.getElementById("newChatButton");
+  var chatSessionSelector = document.getElementById("chatSessionSelector");
   var userInput = document.getElementById("userInput");
   var chatHistory = document.getElementById("chatHistory");
   var lastUserMessageDiv = null; // Keep track of the last user message div
   var isNewUserInput = true; // Flag to track when a new user input happens
 
-  // To keep track of the current chat session
   var currentSessionKey = 'currentChatSession';
   var sessionListKey = 'chatSessionList';
-  
+
   // Load chat history from localStorage on page load
   window.onload = function() {
+    loadChatSessions();
     loadChatHistory();
   };
 
-  function loadChatHistory() {
-    var currentSession = localStorage.getItem(currentSessionKey);
+  function loadChatSessions() {
+    var sessionList = JSON.parse(localStorage.getItem(sessionListKey)) || [];
+    chatSessionSelector.innerHTML = '<option value="" disabled selected>Select a chat session</option>';
+    
+    sessionList.forEach(function(sessionKey) {
+      var option = document.createElement("option");
+      option.value = sessionKey;
+      option.textContent = `Session ${sessionKey.split('_')[1]}`;
+      chatSessionSelector.appendChild(option);
+    });
+  }
+
+  function loadChatHistory(sessionKey) {
+    var currentSession = sessionKey || localStorage.getItem(currentSessionKey);
     if (currentSession) {
-      chatHistory.innerHTML = localStorage.getItem(currentSession);
+      chatHistory.innerHTML = localStorage.getItem(currentSession) || "";
     }
   }
 
@@ -81,7 +97,14 @@
     
     // Clear chat area for new chat session
     chatHistory.innerHTML = "";
+    loadChatSessions();
   }
+
+  chatSessionSelector.onchange = function() {
+    saveChatHistory(); // Save the current session before switching
+    localStorage.setItem(currentSessionKey, this.value); // Set the selected session as the current one
+    loadChatHistory(this.value); // Load the selected session's chat history
+  };
 
   ws.onmessage = function(event) {
     var message = event.data.trim(); // Trim whitespace from the message
