@@ -68,15 +68,17 @@
   }
 
   function loadChatHistory(sessionKey) {
-    var currentSession = sessionKey || localStorage.getItem(currentSessionKey);
-    if (currentSession) {
-      chatHistory.innerHTML = localStorage.getItem(currentSession) || "";
+    var sessionToLoad = sessionKey || localStorage.getItem(currentSessionKey);
+    if (sessionToLoad) {
+      chatHistory.innerHTML = localStorage.getItem(sessionToLoad) || "";
     }
   }
 
   function saveChatHistory() {
     var currentSession = localStorage.getItem(currentSessionKey);
-    localStorage.setItem(currentSession, chatHistory.innerHTML);
+    if (currentSession) {
+      localStorage.setItem(currentSession, chatHistory.innerHTML);
+    }
   }
 
   function createNewChatSession() {
@@ -102,8 +104,9 @@
 
   chatSessionSelector.onchange = function() {
     saveChatHistory(); // Save the current session before switching
-    localStorage.setItem(currentSessionKey, this.value); // Set the selected session as the current one
-    loadChatHistory(this.value); // Load the selected session's chat history
+    var selectedSession = this.value;
+    localStorage.setItem(currentSessionKey, selectedSession); // Set the selected session as the current one
+    loadChatHistory(selectedSession); // Load the selected session's chat history
   };
 
   ws.onmessage = function(event) {
