@@ -11,12 +11,7 @@
         Chat History:
       </div>
       <div class="card-body chat-history" id="chatHistory">
-        <!-- auto populate here -->
-        {% for response in chat_responses %}
-        <div class="{{ 'chat-message user-input' if loop.index0 is even else 'chat-message ai-response' }}">
-          {{ response }}
-        </div>
-        {% endfor %}
+        <!-- Chat history will be loaded here -->
       </div>
     </div>
   </div>
@@ -25,6 +20,7 @@
     <div class="input-group mb-3">
       <input class="form-control" placeholder="Add input here" id="userInput">
       <button class="btn btn-outline-primary" type="button" id="sendButton">Send</button>
+      <button class="btn btn-outline-secondary" type="button" id="newChatButton">New Chat</button>
     </div>
   </div>
 </div>
@@ -40,15 +36,27 @@
   var ws = new WebSocket(websocketString);
 
   var sendButton = document.getElementById("sendButton");
+  var newChatButton = document.getElementById("newChatButton");
   var userInput = document.getElementById("userInput");
   var chatHistory = document.getElementById("chatHistory");
   var lastUserMessageDiv = null; // Keep track of the last user message div
   var isNewUserInput = true; // Flag to track when a new user input happens
 
-  // Clear chat history on page load
+  // Load chat history from localStorage on page load
   window.onload = function() {
-    chatHistory.innerHTML = ""; // Clear the chat history on page load
+    loadChatHistory();
   };
+
+  function loadChatHistory() {
+    var storedHistory = localStorage.getItem('chatHistory');
+    if (storedHistory) {
+      chatHistory.innerHTML = storedHistory;
+    }
+  }
+
+  function saveChatHistory() {
+    localStorage.setItem('chatHistory', chatHistory.innerHTML);
+  }
 
   ws.onmessage = function(event) {
     var message = event.data.trim(); // Trim whitespace from the message
@@ -72,6 +80,8 @@
       lastUserMessageDiv = messageDiv; // Update the reference to the last message div
       isNewUserInput = false; // Reset the flag as the AI response starts
     }
+
+    saveChatHistory(); // Save chat history after receiving a message
   };
 
   sendButton.onclick = function() {
@@ -89,6 +99,17 @@
 
       isNewUserInput = true; // Set the flag as it's a new user input
       lastUserMessageDiv = null; // Prepare for the next message
+
+      saveChatHistory(); // Save chat history after sending a message
     }
+  };
+
+  newChatButton.onclick = function() {
+    // Save the current chat history
+    saveChatHistory();
+    
+    // Clear the chat area and start a new chat
+    chatHistory.innerHTML = "";
+    saveChatHistory(); // Save the empty chat history to start fresh
   };
 </script>
