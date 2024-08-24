@@ -122,7 +122,7 @@
     // Check if the message contains bullet points indicators
     var lines = message.split('\n');
     var ulElement = null;
-    var bulletPointPattern = /^(\* |\- |[0-9]+\.\s)/; // Regex to detect bullet points (*, -, or numbers)
+    var bulletPointPattern = /^(\* |\-\s|[0-9]+\.\s)/; // Regex to detect bullet points (*, -, or numbers)
 
     lines.forEach(line => {
       var trimmedLine = line.trim();
