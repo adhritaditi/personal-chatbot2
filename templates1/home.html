@@ -126,7 +126,7 @@
 
       lastUserMessageDiv.textContent += (shouldAddSpace ? " " : "") + message;
     } else {
-      // Format the AI's response as bullet points and paragraphs
+      // Format the AI's response as bullet points, numbered lists, and paragraphs
       var messageDiv = document.createElement("div");
       messageDiv.className = "chat-message ai-response"; // Assign class for styling
 
@@ -141,6 +141,13 @@
             var ul = document.createElement("ul");
             ul.appendChild(listItem);
             messageDiv.appendChild(ul);
+          } else if (/^\d+\.\s/.test(line)) {
+            // Handle numbered lists
+            listItem = document.createElement("li");
+            listItem.textContent = line.replace(/^\d+\.\s/, ''); // Remove the number prefix
+            var ol = document.createElement("ol");
+            ol.appendChild(listItem);
+            messageDiv.appendChild(ol);
           } else {
             // Handle plain text paragraphs
             var p = document.createElement("p");
