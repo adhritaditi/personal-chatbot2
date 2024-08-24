@@ -119,32 +119,8 @@
     var messageDiv = document.createElement("div");
     messageDiv.className = "chat-message ai-response"; // Assign class for styling
 
-    // Regex pattern to detect bullet points or numbered lists
-    var bulletPointPattern = /^(\* |\d+\.\s)/; 
-    var lines = message.split(/\r?\n/); // Split by line breaks
-
-    var ulElement = null;
-    lines.forEach(function(line) {
-      var trimmedLine = line.trim();
-
-      // If the line starts with a bullet point or a number
-      if (bulletPointPattern.test(trimmedLine)) {
-        if (!ulElement) {
-          ulElement = document.createElement("ul");
-          messageDiv.appendChild(ulElement);
-        }
-        var listItem = document.createElement("li");
-        listItem.textContent = trimmedLine.replace(bulletPointPattern, ''); // Remove the bullet point or number indicator
-        ulElement.appendChild(listItem);
-      } else {
-        if (ulElement) {
-          ulElement = null;
-        }
-        var pElement = document.createElement("p");
-        pElement.textContent = trimmedLine;
-        messageDiv.appendChild(pElement);
-      }
-    });
+    // Directly set the response message, preserving formatting
+    messageDiv.innerHTML = message.replace(/\n/g, '<br>'); // Convert new lines to <br> for HTML display
 
     chatHistory.appendChild(messageDiv); // Append the formatted message to chat history
     lastUserMessageDiv = messageDiv; // Update the reference to the last message div
