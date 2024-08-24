@@ -119,25 +119,24 @@
     var messageDiv = document.createElement("div");
     messageDiv.className = "chat-message ai-response"; // Assign class for styling
 
-    // Check if the message contains bullet points indicators
-    var lines = message.split('\n');
-    var ulElement = null;
-    var bulletPointPattern = /^(\* |\-\s|[0-9]+\.\s)/; // Regex to detect bullet points (*, -, or numbers)
+    // Regex pattern to detect bullet points or numbered lists
+    var bulletPointPattern = /^(\* |\d+\.\s)/; 
+    var lines = message.split(/\r?\n/); // Split by line breaks
 
-    lines.forEach(line => {
+    var ulElement = null;
+    lines.forEach(function(line) {
       var trimmedLine = line.trim();
 
-      // Check if the line matches bullet point pattern
+      // If the line starts with a bullet point or a number
       if (bulletPointPattern.test(trimmedLine)) {
         if (!ulElement) {
           ulElement = document.createElement("ul");
           messageDiv.appendChild(ulElement);
         }
         var listItem = document.createElement("li");
-        listItem.textContent = trimmedLine.replace(bulletPointPattern, ''); // Remove the bullet point indicator
+        listItem.textContent = trimmedLine.replace(bulletPointPattern, ''); // Remove the bullet point or number indicator
         ulElement.appendChild(listItem);
       } else {
-        // If a bullet list was ongoing, close it before adding a new paragraph
         if (ulElement) {
           ulElement = null;
         }
