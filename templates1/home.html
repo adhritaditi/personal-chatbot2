@@ -115,31 +115,41 @@
   ws.onmessage = function(event) {
     var message = event.data.trim(); // Trim whitespace from the message
 
-    // Check if it's a continuation of the AI's last message or a new one
-    if (lastUserMessageDiv && !isNewUserInput) {
-      var shouldAddSpace = true;
-      var noPrependSpaceChars = [',', '.', '!', '?', ';', ':', "'"];
+    // Create a new div element for the AI response
+    var messageDiv = document.createElement("div");
+    messageDiv.className = "chat-message ai-response"; // Assign class for styling
 
-      if (noPrependSpaceChars.includes(message.charAt(0))) {
-        shouldAddSpace = false;
-      }
+    // Check if the message contains bullet points indicators
+    var lines = message.split('\n');
+    var ulElement = null;
+    var bulletPointPattern = /^(\* |\- |[0-9]+\.\s)/; // Regex to detect bullet points (*, -, or numbers)
 
-      lastUserMessageDiv.textContent += (shouldAddSpace ? " " : "") + message;
-    } else {
-      // Format the AI's response as bullet points
-      var messageDiv = document.createElement("ul");
-      messageDiv.className = "chat-message ai-response"; // Assign class for styling
-      message.split('\n').forEach(line => {
-        if (line.trim() !== "") {
-          var listItem = document.createElement("li");
-          listItem.textContent = line;
-          messageDiv.appendChild(listItem);
+    lines.forEach(line => {
+      var trimmedLine = line.trim();
+
+      // Check if the line matches bullet point pattern
+      if (bulletPointPattern.test(trimmedLine)) {
+        if (!ulElement) {
+          ulElement = document.createElement("ul");
+          messageDiv.appendChild(ulElement);
         }
-      });
-      chatHistory.appendChild(messageDiv);
-      lastUserMessageDiv = messageDiv; // Update the reference to the last message div
-      isNewUserInput = false; // Reset the flag as the AI response starts
-    }
+        var listItem = document.createElement("li");
+        listItem.textContent = trimmedLine.replace(bulletPointPattern, ''); // Remove the bullet point indicator
+        ulElement.appendChild(listItem);
+      } else {
+        // If a bullet list was ongoing, close it before adding a new paragraph
+        if (ulElement) {
+          ulElement = null;
+        }
+        var pElement = document.createElement("p");
+        pElement.textContent = trimmedLine;
+        messageDiv.appendChild(pElement);
+      }
+    });
+
+    chatHistory.appendChild(messageDiv); // Append the formatted message to chat history
+    lastUserMessageDiv = messageDiv; // Update the reference to the last message div
+    isNewUserInput = false; // Reset the flag as the AI response starts
 
     saveChatHistory(); // Save chat history after receiving a message
   };
