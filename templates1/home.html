@@ -31,6 +31,8 @@
   </style>
 </head>
 <body>
+  {% include 'layout.html' %}
+
   <div class="container mt-5">
     <h3>Add input to chat with personal chatbot</h3>
 
@@ -73,6 +75,8 @@
     var chatSessionSelector = document.getElementById("chatSessionSelector");
     var userInput = document.getElementById("userInput");
     var chatHistory = document.getElementById("chatHistory");
+    var lastUserMessageDiv = null; // Keep track of the last user message div
+    var isNewUserInput = true; // Flag to track when a new user input happens
 
     var currentSessionKey = 'currentChatSession';
     var sessionListKey = 'chatSessionList';
